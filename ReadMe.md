@@ -32,8 +32,13 @@ cargo build --release --target x86_64-apple-darwin
 
 ## for podman
 ```bash
-export cross build --target aarch64-unknown-linux-gnu
-export cross build --target x86_64-unknown-linux-gnu
+export CROSS_CONTAINER_ENGINE_NO_BUILDKIT=1
+export CROSS_CONTAINER_ENGINE=podman
+export HTTP_PROXY=http://192.168.101.10:3142
+
+cross build --target aarch64-unknown-linux-gnu
+or
+cross build --target x86_64-unknown-linux-gnu
 ```
 
 ```
