@@ -2,10 +2,12 @@
 # export LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib"
 rustflags = [
   "-L", "/opt/homebrew/lib",  # or the result of $(brew --prefix)/lib
+  "-C", "link-arg=-mmacosx-version-min=15.0",
 ]
 
 [target.x86_64-apple-darwin]
 # export LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib"
 rustflags = [
   "-L", "/usr/local/lib",  # or the result of $(brew --prefix)/lib
+  "-C", "link-arg=-mmacosx-version-min=15.0",
 ]
