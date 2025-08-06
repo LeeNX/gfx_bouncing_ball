@@ -1,0 +1,11 @@
+[target.aarch64-apple-darwin]
+# export LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib"
+rustflags = [
+  "-L", "/opt/homebrew/lib",  # or the result of $(brew --prefix)/lib
+]
+
+[target.x86_64-apple-darwin]
+# export LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib"
+rustflags = [
+  "-L", "/usr/local/lib",  # or the result of $(brew --prefix)/lib
+]
