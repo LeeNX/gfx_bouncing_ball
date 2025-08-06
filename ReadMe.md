@@ -7,7 +7,7 @@ brew install sdl2 sdl2_ttf freetype sdl2_image
 ```
 or
 ```bash
-port install sdl2 sdl2_ttf sdl2_image
+port install libsdl2 sdl2_ttf sdl2_image
 ```
 
 # Debian/Ubuntu (check actual version)
@@ -18,6 +18,11 @@ sudo apt install libsdl2-dev libsdl2-image-dev
 # Arch
 ```bash
 sudo pacman -S sdl2
+```
+
+# Fedora
+```bash
+sudo dnf install SDL2-devel
 ```
 
 ```bash
