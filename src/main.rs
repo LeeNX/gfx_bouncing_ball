@@ -2,16 +2,18 @@ use sdl2::{
     event::Event,
     keyboard::Keycode,
     joystick::HatState,
+    controller::GameController,
+    GameControllerSubsystem,
     pixels::Color,
     rect::Rect,
     render::{Canvas, TextureCreator},
     ttf::Sdl2TtfContext,
     video::{Window, WindowContext},
-    EventPump,
 };
 
 use gilrs::{Gilrs, Event as GilrsEvent};
 use std::time::{Duration, Instant};
+use std::collections::HashMap;
 
 const BALL_SIZE: u32 = 16;
 
@@ -61,6 +63,30 @@ fn draw_text(
     let _ = canvas.copy(&texture, None, Some(target));
 }
 
+fn list_gamepads(gc_subsystem: &GameControllerSubsystem) -> HashMap<u32, GameController> {
+    let mut controllers = HashMap::new();
+
+    for id in 0..gc_subsystem.num_joysticks().unwrap() {
+        if gc_subsystem.is_game_controller(id) {
+            match gc_subsystem.open(id) {
+                Ok(c) => {
+                    println!(
+                        "Opened Gamepad {}: {}",
+                        id,
+                        c.name()
+                    );
+                    controllers.insert(id as u32, c);
+                }
+                Err(e) => {
+                    println!("Failed to open gamepad {}: {}", id, e);
+                }
+            }
+        }
+    }
+
+    controllers
+}
+
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -74,6 +100,10 @@ fn main() -> Result<(), String> {
 
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
     let texture_creator = canvas.texture_creator();
+
+    let gc_subsystem = sdl_context.game_controller()?;
+    let mut controllers = list_gamepads(&gc_subsystem);
+
     let mut event_pump = sdl_context.event_pump()?;
     let mut gilrs = Gilrs::new().unwrap();
 
@@ -165,8 +195,64 @@ fn main() -> Result<(), String> {
                     }
                 }
 
-                Event::Quit { .. } |
-                Event::KeyDown { .. } => break 'running,
+                Event::ControllerButtonDown { which, button, .. } => {
+                    println!("Gamepad {} Button Down: {:?}", which, button);
+                    match button {
+                        //ControllerButton::Start => {
+                        sdl2::controller::Button::Start => {
+                            println!("Gamepad Start button pressed – quitting");
+                            break 'running;
+                        }
+                        //ControllerButton::DPadDown => {
+                        sdl2::controller::Button::DPadDown => {
+                            if frame_delay < 20 {
+                                frame_delay += 1;
+                                println!("(Gamepad-D) Increased delay to {} ms", frame_delay);
+                            }
+                        }
+                        //ControllerButton::DPadUp => {
+                        sdl2::controller::Button::DPadUp => {
+                            if frame_delay > 1 {
+                                frame_delay -= 1;
+                                println!("(Gamepad-D) Decreased delay to {} ms", frame_delay);
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+
+                Event::ControllerDeviceAdded { which, .. } => {
+                    println!("Gamepad Added: {}", which);
+                    if let Ok(c) = gc_subsystem.open(which) {
+                        controllers.insert(which as u32, c);
+                    }
+                }
+
+                Event::ControllerDeviceRemoved { which, .. } => {
+                    println!("Gamepad Removed: {}", which);
+                    controllers.remove(&(which as u32));
+                }
+
+                /*
+                // Quit on gamepad Start button
+                Event::ControllerButtonDown {
+                    //button: ControllerButton::Start,
+                    button: sdl2::controller::Button::Start,
+                    ..
+                } => {
+                    println!("Gamepad Start button pressed – quitting");
+                    break 'running;
+                }
+                */
+
+                //Event::Quit { .. } |
+                //Event::KeyDown { .. } => break 'running,
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => break 'running,
+
                 _ => {}
             }
         }
