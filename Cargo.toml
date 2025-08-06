@@ -1,0 +1,25 @@
+[package]
+name = "gfx_bouncing_ball"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+#sdl2 = "0.38.0"
+sdl2 = { version = "0.38.0", features = ["static-link", "image", "ttf"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+sdl2 = { version = "0.38.0", features = ["use-pkgconfig", "ttf", "image", "static-link"] }
+
+[workspace.metadata.cross.target.aarch64-unknown-linux-gnu]
+# Install libssl-dev:arm64, see <https://github.com/cross-rs/cross/blob/main/docs/custom_images.md#adding-dependencies-to-existing-images>
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get --assume-yes install libsdl2-dev:$CROSS_DEB_ARCH libsdl2-image-dev:$CROSS_DEB_ARCH libsdl2-ttf-dev:$CROSS_DEB_ARCH"
+]
+
+[workspace.metadata.cross.target.x86_64-unknown-linux-gnu]
+# Install libssl-dev:arm64, see <https://github.com/cross-rs/cross/blob/main/docs/custom_images.md#adding-dependencies-to-existing-images>
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get --assume-yes install libsdl2-dev:$CROSS_DEB_ARCH libsdl2-image-dev:$CROSS_DEB_ARCH libsdl2-ttf-dev:$CROSS_DEB_ARCH"
+]
