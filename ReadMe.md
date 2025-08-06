@@ -3,7 +3,7 @@ CROSS_CONTAINER_ENGINE=podman
 
 # OSX
 ```bash
-brew install sdl2 sdl2_ttf sdl2_image
+brew install sdl2 sdl2_ttf freetype sdl2_image
 ```
 or
 ```bash
@@ -51,3 +51,7 @@ cross build --target x86_64-pc-windows-gnu --release
 ```bash
 export SDL_VIDEODRIVER=fbcon
 ```
+
+# Font
+Using Ubuntu Mono font, can be found at
+https://fonts.google.com/specimen/Ubuntu+Mono
