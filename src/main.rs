@@ -1,6 +1,7 @@
 use sdl2::{
     event::Event,
     keyboard::Keycode,
+    joystick::HatState,
     pixels::Color,
     rect::Rect,
     render::{Canvas, TextureCreator},
@@ -8,6 +9,7 @@ use sdl2::{
     video::{Window, WindowContext},
     EventPump,
 };
+
 use gilrs::{Gilrs, Event as GilrsEvent};
 use std::time::{Duration, Instant};
 
@@ -85,10 +87,84 @@ fn main() -> Result<(), String> {
     let mut frame_count = 0;
     let mut last_fps_check = Instant::now();
     let mut fps = 0;
+    let mut frame_delay = 8u64; // starts at 8ms (≈125fps)
 
     'running: loop {
         for event in event_pump.poll_iter() {
             match event {
+                Event::KeyDown { keycode: Some(Keycode::Up), .. } => {
+                    if frame_delay > 1 {
+                        frame_delay -= 1;
+                        println!("Frame delay: {}ms ({} FPS)", frame_delay, 1000 / frame_delay);
+                    }
+                }
+                Event::KeyDown { keycode: Some(Keycode::Down), .. } => {
+                    if frame_delay < 20 {
+                        frame_delay += 1;
+                        println!("Frame delay: {}ms ({} FPS)", frame_delay, 1000 / frame_delay);
+                    }
+                }
+                Event::JoyAxisMotion { axis_idx, value, .. } => {
+                    if axis_idx == 1 {
+                        if value < -10_000 && frame_delay > 1 {
+                            if frame_delay > 1 {
+                                frame_delay -= 1;
+                                println!("(Gamepad) Decreased delay to {} ms", frame_delay);
+                            }
+                        } else if value > 10_000 {
+                            if frame_delay < 20 {
+                                frame_delay += 1;
+                                println!("(Gamepad) In creased delay to {} ms", frame_delay);
+                            }
+                        }
+                    }
+                }
+/*
+                Event::JoyHatMotion { state, .. } => {
+                    if state.contains(HatState::Up) && frame_delay > 1 {
+                        frame_delay -= 1;
+                    } else if state.contains(HatState::Down) {
+                        frame_delay += 1;
+                    }
+                }
+*/
+                Event::JoyHatMotion { hat_idx, state, .. } => {
+                    println!("Hat {} moved to {:?}", hat_idx, state);
+
+                    if let HatState::Up = state {
+                        if frame_delay > 1 {
+                            frame_delay -= 1;
+                            println!("(Gamepad-D) Decreased delay to {} ms", frame_delay);
+                        }
+                    } else if let HatState::Down = state {
+                        if frame_delay < 20 {
+                            frame_delay += 1;
+                            println!("(Gamepad-D) Increased delay to {} ms", frame_delay);
+                        }
+                    }
+
+                }
+
+                Event::JoyButtonDown { button_idx, .. } => {
+                    println!("Button {} down", button_idx);
+
+                    match button_idx {
+                        0 => {
+                            if frame_delay > 1 {
+                                frame_delay -= 1;
+                                println!("(Gamepad) Decreased delay to {} ms", frame_delay);
+                            }
+                        }
+                        1 => {
+                            if frame_delay < 20 {
+                                frame_delay += 1;
+                                println!("(Gamepad) Increased delay to {} ms", frame_delay);
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+
                 Event::Quit { .. } |
                 Event::KeyDown { .. } => break 'running,
                 _ => {}
@@ -136,7 +212,7 @@ fn main() -> Result<(), String> {
         );
 
         canvas.present();
-        ::std::thread::sleep(Duration::from_millis(16));
+        ::std::thread::sleep(Duration::from_millis(frame_delay));
     }
 
     Ok(())
