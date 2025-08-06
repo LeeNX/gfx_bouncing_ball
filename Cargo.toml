@@ -4,8 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+#rusttype = "0.9"
 #sdl2 = "0.38.0"
-sdl2 = { version = "0.38.0", features = ["static-link", "image", "ttf"] }
+#sdl2 = { version = "0.38.0", features = ["static-link", "image", "ttf"] }
+
+[dependencies.sdl2]
+version = "0.38.0"
+features = ["ttf"]
+default-features = false
 
 [target.'cfg(target_os = "linux")'.dependencies]
 sdl2 = { version = "0.38.0", features = ["use-pkgconfig", "ttf", "image", "static-link"] }
