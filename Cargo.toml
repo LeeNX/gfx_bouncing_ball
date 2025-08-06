@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+gilrs = "0.10"
 #rusttype = "0.9"
 #sdl2 = "0.38.0"
 #sdl2 = { version = "0.38.0", features = ["static-link", "image", "ttf"] }
