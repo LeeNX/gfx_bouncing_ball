@@ -99,7 +99,8 @@ jobs:
           brew install sdl2 sdl2_ttf freetype sdl2_image
 
       - name: Install system SDL2 (Windows)
-        if: startsWith(runner.os,'Windows')
+        if: ${{ false }}
+        # if: startsWith(runner.os,'Windows')
         run: |
           # vcpkg install sdl2
           choco upgrade sdl2 -y
