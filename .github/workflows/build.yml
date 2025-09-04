@@ -1,0 +1,134 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '05 00 * * 0'
+  workflow_dispatch:
+
+concurrency:
+  # https://docs.github.com/en/actions/examples/using-concurrency-expressions-and-a-test-matrix
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x64
+          - platform: linux-x86_64
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+
+          # Linux arm64
+          - platform: linux-x86_64
+            os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+
+          # Linux riscv64
+          - platform: linux-riscv64
+            os: ubuntu-latest
+            target: riscv64gc-unknown-linux-gnu
+            cross: true
+
+          # macOS Intel
+          - platform: macos-x86_64
+            os: macos-13
+            target: x86_64-apple-darwin
+
+          # macOS ARM
+          - platform: macos-arm64
+            os: macos-14
+            target: aarch64-apple-darwin
+
+          # Windows cross-compile (GNU)
+          - platform: windows-x86_64-gnu
+            os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
+            cross: true
+
+          # Windows native (MSVC)
+          - platform: windows-x86_64-msvc
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+          # Windows native (MSVC) arm64
+          - platform: windows-latest
+            os: windows-latest
+            target: aarch64-pc-windows-msvc
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo files and outputs
+        if: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
+        uses: swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.platform }}
+          cache-on-failure: true
+
+      - name: Install system SDL2 (Linux)
+        if: ${{ startsWith(runner.os,'Linux') && ( ! matrix.cross ) }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --assume-yes \
+            libsdl2-dev libsdl2-ttf-dev
+
+      - name: Install system SDL2 (macOS)
+        if: ${{ startsWith(runner.os,'macOS') }}
+        run: |
+          brew install sdl2 sdl2_ttf
+
+      - name: Install system SDL2 (Windows)
+        if: startsWith(runner.os,'Windows')
+        run: |
+          # vcpkg install sdl2
+          choco upgrade sdl2 -y
+
+      - name: Install master cross-rs
+        if: ${{ matrix.cross }}
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Builds (native)
+        if: ${{ ( ! matrix.cross ) }}
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Build (linux-riscv64 [cross])
+        if: ${{ matrix.platform == 'linux-riscv64' }}
+        run: cross build --release --target ${{ matrix.target }}
+
+      - name: Build (Windows GNU [cross])
+        if: ${{ matrix.platform == 'windows-x86_64-gnu' }}
+        env:
+          SDL2_BUNDLED: 1
+        run: cross build --release --target ${{ matrix.target }}
+
+      - name: Build (Windows MSVC [native])
+        if: ${{ matrix.platform == 'windows-x86_64-msvc' }}
+        run: cargo build --release --target ${{ matrix.target }}
+
+      # Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}
+          path: target/${{ matrix.target }}/release/
