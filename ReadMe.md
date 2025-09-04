@@ -11,8 +11,13 @@ port install libsdl2 sdl2_ttf sdl2_image
 ```
 
 # Debian/Ubuntu (check actual version)
+## Build/Dev packages installs
 ```bash
 sudo apt install libsdl2-dev libsdl2-image-dev
+```
+## Runtime needed packages
+```bash
+sudo apt install libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-ttf-2.0-0
 ```
 
 # Arch
@@ -60,3 +65,10 @@ export SDL_VIDEODRIVER=fbcon
 # Font
 Using Ubuntu Mono font, can be found at
 https://fonts.google.com/specimen/Ubuntu+Mono
+
+# ToDo
+## Investigate
+```bash
+leet@cylon:~/src/gfx_bouncing_ball$ sudo ./gfx_bouncing_ball
+error: XDG_RUNTIME_DIR is invalid or not set in the environment.
+```

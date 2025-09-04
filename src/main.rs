@@ -217,7 +217,10 @@ fn main() -> Result<(), String> {
                                 println!("(Gamepad-D) Decreased delay to {} ms", frame_delay);
                             }
                         }
-                        _ => {}
+                        _ => {
+                            println!("Unhandled gamepad button: {:?}", button);
+                        }
+
                     }
                 }
 
