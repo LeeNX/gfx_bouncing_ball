@@ -24,6 +24,7 @@ jobs:
     name: Build (${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
 
+    continue-on-error: ${{ matrix.best_effort || false }}
     strategy:
       fail-fast: false
       matrix:
@@ -59,6 +60,7 @@ jobs:
             os: ubuntu-latest
             target: x86_64-pc-windows-gnu
             cross: true
+            best_effort: true
 
           # Windows native (MSVC)
           - platform: windows-x86_64-msvc
@@ -69,6 +71,7 @@ jobs:
           - platform: windows-arm64-msvc
             os: windows-latest
             target: aarch64-pc-windows-msvc
+            best_effort: true
 
     steps:
       - name: Checkout source

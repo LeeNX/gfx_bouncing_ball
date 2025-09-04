@@ -19,8 +19,12 @@ default-features = false
 sdl2 = { version = "0.38.0", features = ["use-pkgconfig", "ttf", "image", "static-link"] }
 
 # Windows native builds → system SDL2 (expect SDL2/SDL2_ttf installed)
+#[target.'cfg(all(target_os = "windows"))'.dependencies]
+#sdl2 = { version = "0.38.0", default-features = false, features = ["ttf", "use-pkgconfig"] }
+
+# Windows native builds → system SDL2 (expect SDL2/SDL2_ttf installed)
 [target.'cfg(all(target_os = "windows"))'.dependencies]
-sdl2 = { version = "0.38.0", default-features = false, features = ["ttf", "use-pkgconfig"] }
+sdl2 = { version = "0.38.0", default-features = false, features = ["ttf", "bundled"] }
 
 # Windows cross builds (from macOS/Linux) → bundled SDL2
 #[target.'cfg(all(target_os = "windows", cross))'.dependencies]
