@@ -3,21 +3,21 @@ CROSS_CONTAINER_ENGINE=podman
 
 # OSX
 ```bash
-brew install sdl2 sdl2_ttf freetype sdl2_image
+brew install sdl2 sdl2_ttf freetype sdl2_image sdl2_mixer sdl2_gfx
 ```
 or
 ```bash
-port install libsdl2 sdl2_ttf sdl2_image
+port install libsdl2 sdl2_ttf sdl2_image sdl2_mixer sdl2_gfx
 ```
 
 # Debian/Ubuntu (check actual version)
 ## Build/Dev packages installs
 ```bash
-sudo apt install libsdl2-dev libsdl2-image-dev
+sudo apt install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-gfx-dev
 ```
 ## Runtime needed packages
 ```bash
-sudo apt install libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-ttf-2.0-0
+sudo apt install libsdl2-2.0-0 libsdl2-ttf-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-gfx-1.0-0
 ```
 
 # Arch
@@ -30,6 +30,7 @@ sudo pacman -S sdl2
 sudo dnf install SDL2-devel
 ```
 
+# Native builds
 ```bash
 cargo build --release
 ```
@@ -71,4 +72,7 @@ https://fonts.google.com/specimen/Ubuntu+Mono
 ```bash
 leet@cylon:~/src/gfx_bouncing_ball$ sudo ./gfx_bouncing_ball
 error: XDG_RUNTIME_DIR is invalid or not set in the environment.
+```
+```
+Windows build issues
 ```

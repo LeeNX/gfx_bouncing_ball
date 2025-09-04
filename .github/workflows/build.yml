@@ -12,6 +12,9 @@ on:
     - cron: '05 00 * * 0'
   workflow_dispatch:
 
+env:
+  CARGO_OPTIONS: "--release --locked"
+
 concurrency:
   # https://docs.github.com/en/actions/examples/using-concurrency-expressions-and-a-test-matrix
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
@@ -102,11 +105,12 @@ jobs:
           brew install sdl2 sdl2_ttf freetype sdl2_image
 
       - name: Install system SDL2 (Windows)
-        if: ${{ false }}
-        # if: startsWith(runner.os,'Windows')
+        # if: ${{ false }}
+        if: startsWith(runner.os,'Windows')
         run: |
           # vcpkg install sdl2
-          choco upgrade sdl2 -y
+          # choco upgrade sdl2 -y
+          vcpkg.exe install sdl2-ttf:x64-windows sdl2:x64-windows
 
       - name: Install master cross-rs
         if: ${{ matrix.cross }}
@@ -114,21 +118,21 @@ jobs:
 
       - name: Builds (native)
         if: ${{ ( ! matrix.cross ) }}
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build ${{ env.CARGO_OPTIONS }} --target ${{ matrix.target }}
 
       - name: Build (linux-riscv64 [cross])
         if: ${{ matrix.platform == 'linux-riscv64' }}
-        run: cross build --release --target ${{ matrix.target }}
+        run: cross build ${{ env.CARGO_OPTIONS }} --target ${{ matrix.target }}
 
       - name: Build (Windows GNU [cross])
         if: ${{ matrix.platform == 'windows-x86_64-gnu' }}
         env:
           SDL2_BUNDLED: 1
-        run: cross build --release --target ${{ matrix.target }}
+        run: cross build ${{ env.CARGO_OPTIONS }} --target ${{ matrix.target }}
 
       - name: Build (Windows MSVC [native])
         if: ${{ matrix.platform == 'windows-x86_64-msvc' }}
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build ${{ env.CARGO_OPTIONS }} --target ${{ matrix.target }}
 
       # Upload artifacts
       - name: Upload artifacts
