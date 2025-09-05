@@ -65,7 +65,7 @@ jobs:
             cross: true
             best_effort: true
 
-          # Windows native (MSVC)
+          # Windows native (MSVC) x86_64
           - platform: windows-x86_64-msvc
             os: windows-latest
             target: x86_64-pc-windows-msvc
@@ -119,9 +119,12 @@ jobs:
         # if: ${{ false }}
         if: startsWith(runner.os,'Windows')
         run: |
-          # vcpkg install sdl2
-          # choco upgrade sdl2 -y
-          vcpkg.exe install sdl2-ttf:x64-windows sdl2:x64-windows
+          vcpkg.exe install \
+            sdl2:x64-windows \
+            sdl2-ttf:x64-windows \
+            sdl2-image:x64-windows \
+            sdl2-mixer:x64-windows \
+            sdl2-gfx:x64-windows
 
       - name: Install master cross-rs
         if: ${{ matrix.cross }}
